@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie Clicker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .cookie {
+            width: 150px;
+            height: 150px;
+            background: url('https://www.svgrepo.com/show/256790/cookie.svg') no-repeat center center;
+            background-size: contain;
+            cursor: pointer;
+        }
+        .stats {
+            margin: 20px;
+            text-align: center;
+        }
+        .stats div {
+            font-size: 24px;
+            margin: 5px 0;
+        }
+        .upgrade {
+            margin-top: 20px;
+        }
+        .upgrade button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+        .upgrade button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="cookie" id="cookie"></div>
+    <div class="stats">
+        <div>Cookies: <span id="cookieCount">0</span></div>
+        <div>Cookies per Click: <span id="cookiesPerClick">1</span></div>
+        <div>Upgrade Cost: <span id="upgradeCost">50</span> cookies</div>
+    </div>
+    <div class="upgrade">
+        <button id="upgradeButton">Buy Upgrade</button>
+    </div>
+    <script>
+        let cookieCount = 0;
+        let cookiesPerClick = 1;
+        let upgradeCost = 50;
+        
+        const cookieElement = document.getElementById('cookie');
+        const cookieCountElement = document.getElementById('cookieCount');
+        const cookiesPerClickElement = document.getElementById('cookiesPerClick');
+        const upgradeCostElement = document.getElementById('upgradeCost');
+        const upgradeButton = document.getElementById('upgradeButton');
+
+        function updateDisplay() {
+            cookieCountElement.textContent = cookieCount;
+            cookiesPerClickElement.textContent = cookiesPerClick;
+            upgradeCostElement.textContent = upgradeCost;
+            upgradeButton.disabled = cookieCount < upgradeCost;
+        }
+
+        function handleClick() {
+            cookieCount += cookiesPerClick;
+            updateDisplay();
+        }
+
+        function buyUpgrade() {
+            if (cookieCount >= upgradeCost) {
+                cookieCount -= upgradeCost;
+                cookiesPerClick += 1;
+                upgradeCost = Math.floor(upgradeCost * 1.5); // Increase cost
+                updateDisplay();
+            }
+        }
+
+        cookieElement.addEventListener('click', handleClick);
+        upgradeButton.addEventListener('click', buyUpgrade);
+
+        updateDisplay();
+    </script>
+</body>
+</html>

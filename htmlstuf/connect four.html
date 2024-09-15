@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Four</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(7, 60px);
+            grid-template-rows: repeat(6, 60px);
+            gap: 5px;
+            background-color: #007bff;
+            padding: 5px;
+            border-radius: 8px;
+        }
+        .cell {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .cell.red {
+            background-color: red;
+        }
+        .cell.yellow {
+            background-color: yellow;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div id="board" class="board"></div>
+        <div id="message" class="message">Player 1's turn (Red)</div>
+        <button id="reset">Reset Game</button>
+    </div>
+    <script>
+        const rows = 6;
+        const columns = 7;
+        const board = document.getElementById('board');
+        const message = document.getElementById('message');
+        const resetButton = document.getElementById('reset');
+        let currentPlayer = 'red';
+        let gameBoard;
+
+        function initializeGame() {
+            gameBoard = Array.from({ length: rows }, () => Array(columns).fill(null));
+            createBoard();
+            board.addEventListener('click', handleClick);
+            updateBoard();
+            message.textContent = `Player 1's turn (Red)`;
+        }
+
+        function createBoard() {
+            board.innerHTML = '';
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < columns; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function handleClick(event) {
+            if (!event.target.classList.contains('cell')) return;
+
+            const col = parseInt(event.target.dataset.col);
+            for (let row = rows - 1; row >= 0; row--) {
+                if (!gameBoard[row][col]) {
+                    gameBoard[row][col] = currentPlayer;
+                    updateBoard();
+                    if (checkWin(row, col)) {
+                        message.textContent = `${currentPlayer === 'red' ? 'Player 1' : 'Player 2'} wins!`;
+                        board.removeEventListener('click', handleClick);
+                        return;
+                    } else if (gameBoard.flat().every(cell => cell)) {
+                        message.textContent = `It's a draw!`;
+                        board.removeEventListener('click', handleClick);
+                        return;
+                    }
+                    currentPlayer = currentPlayer === 'red' ? 'yellow' : 'red';
+                    message.textContent = `${currentPlayer === 'red' ? 'Player 1' : 'Player 2'}'s turn (${currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1)})`;
+                    return;
+                }
+            }
+        }
+
+        function updateBoard() {
+            const cells = board.getElementsByClassName('cell');
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < columns; col++) {
+                    const cell = cells[row * columns + col];
+                    cell.classList.remove('red', 'yellow');
+                    if (gameBoard[row][col]) {
+                        cell.classList.add(gameBoard[row][col]);
+                    }
+                }
+            }
+        }
+
+        function checkWin(row, col) {
+            const directions = [
+                { r: 1, c: 0 }, // Vertical
+                { r: 0, c: 1 }, // Horizontal
+                { r: 1, c: 1 }, // Diagonal down-right
+                { r: 1, c: -1 } // Diagonal down-left
+            ];
+            for (let { r: dr, c: dc } of directions) {
+                let count = 1;
+                for (let i = 1; i < 4; i++) {
+                    const newRow = row + dr * i;
+                    const newCol = col + dc * i;
+                    if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < columns &&
+                        gameBoard[newRow][newCol] === currentPlayer) {
+                        count++;
+                    } else {
+                        break;
+                    }
+                }
+                for (let i = 1; i < 4; i++) {
+                    const newRow = row - dr * i;
+                    const newCol = col - dc * i;
+                    if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < columns &&
+                        gameBoard[newRow][newCol] === currentPlayer) {
+                        count++;
+                    } else {
+                        break;
+                    }
+                }
+                if (count >= 4) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        resetButton.addEventListener('click', () => {
+            initializeGame();
+        });
+
+        initializeGame();
+    </script>
+</body>
+</html>

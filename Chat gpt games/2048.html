@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #e0f7fa;
+        }
+        .pet-image {
+            width: 200px;
+            height: 200px;
+            background: url('https://www.svgrepo.com/show/13000/dog.svg') no-repeat center center;
+            background-size: contain;
+            margin-bottom: 20px;
+        }
+        .stats {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .stats div {
+            font-size: 24px;
+            margin: 5px 0;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        .controls button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            margin: 5px;
+        }
+        .controls button:hover {
+            background-color: #0056b3;
+        }
+        .controls button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="pet-image" id="petImage"></div>
+    <div class="stats">
+        <div>Happiness: <span id="happiness">50</span></div>
+        <div>Hunger: <span id="hunger">50</span></div>
+    </div>
+    <div class="controls">
+        <button id="feedButton">Feed Pet</button>
+        <button id="playButton">Play with Pet</button>
+        <button id="resetButton">Adopt New Pet</button>
+    </div>
+    <script>
+        let happiness = 50;
+        let hunger = 50;
+        const happinessElement = document.getElementById('happiness');
+        const hungerElement = document.getElementById('hunger');
+        const feedButton = document.getElementById('feedButton');
+        const playButton = document.getElementById('playButton');
+        const resetButton = document.getElementById('resetButton');
+
+        function updateDisplay() {
+            happinessElement.textContent = happiness;
+            hungerElement.textContent = hunger;
+
+            // Disable buttons if pet is unhappy or hungry
+            feedButton.disabled = hunger >= 100;
+            playButton.disabled = happiness <= 0;
+        }
+
+        function feedPet() {
+            if (hunger < 100) {
+                hunger = Math.min(100, hunger + 10);
+                happiness = Math.min(100, happiness + 5); // Pet gets happier when fed
+                updateDisplay();
+            }
+        }
+
+        function playWithPet() {
+            if (happiness < 100) {
+                happiness = Math.min(100, happiness + 10);
+                hunger = Math.max(0, hunger - 5); // Pet gets hungrier when playing
+                updateDisplay();
+            }
+        }
+
+        function adoptNewPet() {
+            happiness = 50;
+            hunger = 50;
+            updateDisplay();
+        }
+
+        feedButton.addEventListener('click', feedPet);
+        playButton.addEventListener('click', playWithPet);
+        resetButton.addEventListener('click', adoptNewPet);
+
+        updateDisplay();
+    </script>
+</body>
+</html>

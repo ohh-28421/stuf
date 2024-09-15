@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Mario Bros Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #87CEEB; /* Sky blue background */
+        }
+        canvas {
+            display: block; /* Removes any margins or spacing around the canvas */
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+    <script>
+        let player;
+        let platforms = [];
+        let movingPlatforms = [];
+        let enemies = [];
+        let flagpole;
+        let levelData;
+        let levelIndex = 0;
+        let scrollX = 0;
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            player = new Player();
+            loadLevel(levelIndex);
+        }
+
+        function draw() {
+            background(135, 206, 250); // Sky blue background
+
+            translate(-scrollX, 0);
+            
+            // Draw platforms
+            for (let platform of platforms) {
+                platform.show();
+            }
+
+            // Draw moving platforms
+            for (let mPlatform of movingPlatforms) {
+                mPlatform.update();
+                mPlatform.show();
+            }
+            
+            // Draw flagpole
+            if (flagpole) {
+                flagpole.show();
+            }
+            
+            // Draw enemies
+            for (let enemy of enemies) {
+                enemy.update();
+                enemy.show();
+            }
+
+            // Draw player
+            player.update();
+            player.show();
+            
+            // Check collisions
+            checkCollisions();
+            
+            // Check win condition
+            if (flagpole && player.x > flagpole.x && player.x < flagpole.x + flagpole.width && player.y + player.height > flagpole.y) {
+                levelIndex++;
+                if (levelIndex < levelData.length) {
+                    loadLevel(levelIndex); // Load the next level
+                } else {
+                    alert('Congratulations! You completed all levels!');
+                    noLoop(); // Stop the game loop
+                }
+            }
+            
+            // Update scroll position
+            scrollX = constrain(player.x - width / 2, 0, levelData[levelIndex].width - width);
+        }
+
+        function keyPressed() {
+            if (key === ' ') {
+                player.jump();
+            }
+        }
+
+        function keyReleased() {
+            if (key === ' ') {
+                player.stopJump();
+            }
+        }
+
+        function checkCollisions() {
+            // Check for collisions with platforms
+            for (let platform of platforms) {
+                if (player.x + player.width > platform.x &&
+                    player.x < platform.x + platform.width &&
+                    player.y + player.height > platform.y &&
+                    player.y < platform.y + platform.height) {
+                    player.y = platform.y - player.height;
+                    player.velocityY = 0;
+                    player.jumping = false;
+                }
+            }
+
+            // Check for collisions with moving platforms
+            for (let mPlatform of movingPlatforms) {
+                if (player.x + player.width > mPlatform.x &&
+                    player.x < mPlatform.x + mPlatform.width &&
+                    player.y + player.height > mPlatform.y &&
+                    player.y < mPlatform.y + mPlatform.height) {
+                    player.y = mPlatform.y - player.height;
+                    player.velocityY = 0;
+                    player.jumping = false;
+                    player.x += mPlatform.velocityX; // Move player with platform
+                }
+            }
+
+            // Check for collisions with enemies
+            for (let enemy of enemies) {
+                if (player.x + player.width > enemy.x &&
+                    player.x < enemy.x + enemy.width &&
+                    player.y + player.height > enemy.y &&
+                    player.y < enemy.y + enemy.height) {
+                    alert('Game Over! You hit an enemy!');
+                    noLoop(); // Stop the game loop
+                }
+            }
+        }
+
+        function loadLevel(index) {
+            platforms = [];
+            movingPlatforms = [];
+            enemies = [];
+            flagpole = null;
+
+            levelData = [
+                { width: 3200, platforms: [[0, height - 50, width, 50], [500, height - 150, 200, 20], [1000, height - 250, 200, 20], [1500, height - 350, 200, 20]], movingPlatforms: [[300, height - 200, 100, 20, 1]], enemies: [[600, height - 100, 1], [1200, height - 200, -1]], flagpole: [width * 0.9, height - 150, 20, 150] },
+                { width: 4000, platforms: [[0, height - 50, width, 50], [200, height - 150, 200, 20], [500, height - 250, 200, 20], [800, height - 350, 200, 20], [1100, height - 450, 200, 20]], movingPlatforms: [[400, height - 250, 100, 20, 1], [900, height - 350, 150, 20, -1]], enemies: [[500, height - 100, 1], [1000, height - 200, -1], [1500, height - 300, 1]], flagpole: [width * 0.85, height - 150, 20, 150] },
+                { width: 4800, platforms: [[0, height - 50, width, 50], [200, height - 150, 200, 20], [500, height - 250, 200, 20], [800, height - 350, 200, 20], [1100, height - 450, 200, 20], [1400, height - 550, 200, 20]], movingPlatforms: [[600, height - 300, 150, 20, 1], [1200, height - 400, 200, 20, -1]], enemies: [[700, height - 100, 1], [1300, height - 200, -1], [2000, height - 300, 1]], flagpole: [width * 0.8, height - 150, 20, 150] },
+                { width: 5600, platforms: [[0, height - 50, width, 50], [200, height - 150, 200, 20], [500, height - 250, 200, 20], [800, height - 350, 200, 20], [1100, height - 450, 200, 20], [1400, height - 550, 200, 20], [1700, height - 650, 200, 20]], movingPlatforms: [[800, height - 400, 100, 20, 1], [1400, height - 500, 150, 20, -1]], enemies: [[800, height - 100, 1], [1500, height - 200, -1], [2200, height - 300, 1]], flagpole: [width * 0.75, height - 150, 20, 150] },
+                { width: 6400, platforms: [[0, height - 50, width, 50], [200, height - 150, 200, 20], [500, height - 250, 200, 20], [800, height - 350, 200, 20], [1100, height - 450, 200, 20], [1400, height - 550, 200, 20], [1700, height - 650, 200, 20], [2000, height - 750, 200, 20]], movingPlatforms: [[1000, height - 500, 150, 20, 1], [2000, height - 600, 100, 20, -1]], enemies: [[1000, height - 100, 1], [1600, height - 200, -1], [2200, height - 300, 1]], flagpole: [width * 0.7, height - 150, 20, 150] }
+            ];
+
+            let data = levelData[index];
+            platforms = data.platforms.map(p => new Platform(p[0], p[1], p[2], p[3]));
+            movingPlatforms = data.movingPlatforms.map(m => new MovingPlatform(m[0], m[1], m[2], m[3], m[4]));
+            enemies = data.enemies.map(e => new Enemy(e[0], e[1], e[2]));
+            flagpole = new Flagpole(data.flagpole[0], data.flagpole[1], data.flagpole[2], data.flagpole[3]);
+            player.x = 50; // Reset player position
+            player.y = height - 150; // Reset player position
+        }
+
+        class Player {
+            constructor() {
+                this.x = 50;
+                this.y = height - 150;
+                this.width = 40;
+                this.height = 60;
+                this.gravity = 0.5;
+                this.lift = -12;
+                this.velocityY = 0;
+                this.jumping = false;
+                this.speed = 5;
+                this.color = 'red';
+            }
+
+            update() {
+                this.velocityY += this.gravity;
+                this.y += this.velocityY;
+                if (this.y + this.height > height - 50) {
+                    this.y = height - 50 - this.height;
+                    this.velocityY = 0;
+                    this.jumping = false;
+                }
+
+                if (keyIsDown(LEFT_ARROW)) {
+                    this.x -= this.speed;
+                }
+                if (keyIsDown(RIGHT_ARROW)) {
+                    this.x += this.speed;
+                }
+                if (keyIsDown(UP_ARROW) && !this.jumping) {
+                    this.jump();
+                }
+            }
+
+            show() {
+                fill(this.color);
+                rect(this.x, this.y, this.width, this.height);
+            }
+
+            jump() {
+                if (!this.jumping) {
+                    this.velocityY = this.lift;
+                    this.jumping = true;
+                }
+            }
+
+            stopJump() {
+                this.jumping = false;
+            }
+        }
+
+        class Platform {
+            constructor(x, y, width, height) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+            }
+
+            show() {
+                fill('green');
+                rect(this.x, this.y, this.width, this.height);
+            }
+        }
+
+        class MovingPlatform {
+            constructor(x, y, width, height, direction) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.velocityX = direction; // Movement direction
+                this.initialX = x;
+                this.range = 200; // Movement range
+            }
+
+            update() {
+                this.x += this.velocityX;
+                if (this.x < this.initialX - this.range || this.x > this.initialX + this.range) {
+                    this.velocityX *= -1;
+                }
+            }
+
+            show() {
+                fill('brown');
+                rect(this.x, this.y, this.width, this.height);
+            }
+        }
+
+        class Flagpole {
+            constructor(x, y, width, height) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+            }
+
+            show() {
+                fill('gold');
+                rect(this.x, this.y, this.width, this.height);
+                fill('red');
+                rect(this.x - 10, this.y + this.height, 40, 10);
+            }
+        }
+
+        class Enemy {
+            constructor(x, y, direction) {
+                this.x = x;
+                this.y = y;
+                this.width = 30;
+                this.height = 30;
+                this.color = 'white';
+                this.direction = direction; // 1 for right, -1 for left
+                this.speed = 2; // Base speed
+                this.attackRadius = 100; // Radius in which enemy can attack
+            }
+
+            update() {
+                this.x += this.direction * this.speed;
+                
+                // Reverse direction when hitting the edge
+                if (this.x < 0 || this.x + this.width > width) {
+                    this.direction *= -1;
+                }
+            }
+
+            show() {
+                fill(this.color);
+                rect(this.x, this.y, this.width, this.height);
+                // Draw attack range
+                noFill();
+                stroke('red');
+                strokeWeight(1);
+                ellipse(this.x + this.width / 2, this.y + this.height / 2, this.attackRadius * 2);
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+    </script>
+</body>
+</html>

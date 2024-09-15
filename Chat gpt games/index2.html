@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+        canvas {
+            display: block;
+            margin: auto;
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="pongCanvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('pongCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Constants
+        const paddleWidth = 10;
+        const paddleHeight = 100;
+        const ballSize = 10;
+        const paddleSpeed = 5;
+        const ballSpeed = 4;
+
+        // Paddles
+        const leftPaddle = {
+            x: 20,
+            y: canvas.height / 2 - paddleHeight / 2,
+            width: paddleWidth,
+            height: paddleHeight,
+            dy: 0
+        };
+
+        const rightPaddle = {
+            x: canvas.width - paddleWidth - 20,
+            y: canvas.height / 2 - paddleHeight / 2,
+            width: paddleWidth,
+            height: paddleHeight,
+            dy: 0
+        };
+
+        // Ball
+        const ball = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            size: ballSize,
+            dx: ballSpeed,
+            dy: ballSpeed
+        };
+
+        // Scores
+        let leftScore = 0;
+        let rightScore = 0;
+
+        // Draw paddle
+        function drawPaddle(paddle) {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+        }
+
+        // Draw ball
+        function drawBall() {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(ball.x, ball.y, ball.size, ball.size);
+        }
+
+        // Draw scores
+        function drawScores() {
+            ctx.font = '48px Arial';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText(leftScore, canvas.width / 4, 50);
+            ctx.fillText(rightScore, 3 * canvas.width / 4, 50);
+        }
+
+        // Update game elements
+        function update() {
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            // Ball collision with top and bottom walls
+            if (ball.y <= 0 || ball.y + ball.size >= canvas.height) {
+                ball.dy = -ball.dy;
+            }
+
+            // Ball collision with paddles
+            if (ball.x <= leftPaddle.x + leftPaddle.width &&
+                ball.y + ball.size >= leftPaddle.y &&
+                ball.y <= leftPaddle.y + leftPaddle.height) {
+                ball.dx = -ball.dx;
+            }
+
+            if (ball.x + ball.size >= rightPaddle.x &&
+                ball.y + ball.size >= rightPaddle.y &&
+                ball.y <= rightPaddle.y + rightPaddle.height) {
+                ball.dx = -ball.dx;
+            }
+
+            // Scoring
+            if (ball.x <= 0) {
+                rightScore++;
+                resetBall();
+            }
+
+            if (ball.x + ball.size >= canvas.width) {
+                leftScore++;
+                resetBall();
+            }
+
+            // Update paddle positions
+            leftPaddle.y += leftPaddle.dy;
+            rightPaddle.y += rightPaddle.dy;
+
+            // Prevent paddles from going out of bounds
+            leftPaddle.y = Math.max(0, Math.min(canvas.height - leftPaddle.height, leftPaddle.y));
+            rightPaddle.y = Math.max(0, Math.min(canvas.height - rightPaddle.height, rightPaddle.y));
+        }
+
+        // Reset ball to the center
+        function resetBall() {
+            ball.x = canvas.width / 2;
+            ball.y = canvas.height / 2;
+            ball.dx = (Math.random() > 0.5 ? 1 : -1) * ballSpeed;
+            ball.dy = (Math.random() > 0.5 ? 1 : -1) * ballSpeed;
+        }
+
+        // Draw all game elements
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPaddle(leftPaddle);
+            drawPaddle(rightPaddle);
+            drawBall();
+            drawScores();
+        }
+
+        // Main game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Handle keyboard input
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'ArrowUp':
+                    rightPaddle.dy = -paddleSpeed;
+                    break;
+                case 'ArrowDown':
+                    rightPaddle.dy = paddleSpeed;
+                    break;
+                case 'w':
+                    leftPaddle.dy = -paddleSpeed;
+                    break;
+                case 's':
+                    leftPaddle.dy = paddleSpeed;
+                    break;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            switch (e.key) {
+                case 'ArrowUp':
+                case 'ArrowDown':
+                    rightPaddle.dy = 0;
+                    break;
+                case 'w':
+                case 's':
+                    leftPaddle.dy = 0;
+                    break;
+            }
+        });
+
+        // Start the game loop
+        gameLoop();
+    </script>
+</body>
+</html>

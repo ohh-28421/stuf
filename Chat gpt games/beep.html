@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Don't be late for school Solutions</title>
+    <style>
+        body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #31363c;
+        }
+        #timeInput {
+            font-size: 24px;
+            padding: 10px;
+            margin: 20px;background-color: aqua;
+        }
+        #setAlarmButton {
+            font-size: 24px;
+            padding: 20px 24px;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            background-color: #007bff;
+            color: white;
+        }
+        #setAlarmButton:hover {
+            background-color: #0056b3;}  #setAlarmButton {box-shadow: 2px 2px 13px black; font-family: cursive; }
+    
+        #status {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+        #setAlarmButton:hover {transition: opacity 0.15s;}
+    </style>
+</head>
+<body>
+    <h1>Alarm Clock for people who don't have phones</h1>
+    <p>Made by efren gallegos</p>
+    <input type="time" id="timeInput">
+    <button id="setAlarmButton">Click to not be late</button>
+    <div id="status"></div>
+    <footer> <p>Efren gallegos </p></footer>
+    <footer><a href="https://youtube.com"</a><button>Random site</button></a></footer>
+    <style> button
+      {color: #d83434;} </style>
+
+    <script>
+        let alarmTime = null;
+
+        function beep() {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = context.createOscillator();
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(500, context.currentTime); // Frequency in Hz
+            oscillator.connect(context.destination);
+            oscillator.start()
+        }
+
+        function checkAlarm() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            
+            if (alarmTime && hours === alarmTime.hours && minutes === alarmTime.minutes && seconds === 0) {
+                beep();
+                document.getElementById('status').textContent = 'Alarm ringing!';
+                alarmTime = null; // Stop the alarm after it rings
+            }
+        }
+
+        document.getElementById('setAlarmButton').addEventListener('click', () => {
+            const timeInput = document.getElementById('timeInput').value;
+            if (timeInput) {
+                const [hours, minutes] = timeInput.split(':').map(Number);
+                alarmTime = { hours, minutes };
+                document.getElementById('status').textContent = `Alarm set for ${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
+            } else {
+                document.getElementById('status').textContent = 'Please enter a valid time.';
+            }
+        });
+
+        setInterval(checkAlarm, 1000); // Check the alarm every second
+    </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Penalty Shootout</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #e0f7fa;
+        }
+        .field {
+            width: 600px;
+            height: 400px;
+            background: #4caf50;
+            position: relative;
+            border: 2px solid #333;
+        }
+        .goal {
+            width: 100%;
+            height: 50px;
+            background: #fff;
+            position: absolute;
+            bottom: 0;
+            border-top: 2px solid #333;
+        }
+        .goalkeeper {
+            width: 60px;
+            height: 50px;
+            background: url('https://www.svgrepo.com/show/55644/goalkeeper.svg') no-repeat center center;
+            background-size: contain;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .ball {
+            width: 40px;
+            height: 40px;
+            background: url('https://www.svgrepo.com/show/195586/soccer-ball.svg') no-repeat center center;
+            background-size: contain;
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .stats {
+            margin: 20px;
+            text-align: center;
+        }
+        .stats div {
+            font-size: 24px;
+            margin: 5px 0;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .controls button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+        .controls button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="field">
+        <div class="goal">
+            <div class="goalkeeper" id="goalkeeper"></div>
+        </div>
+        <div class="ball" id="ball"></div>
+    </div>
+    <div class="stats">
+        <div>Score: <span id="score">0</span></div>
+        <div>Misses: <span id="misses">0</span></div>
+    </div>
+    <div class="controls">
+        <button id="shootButton">Take a Shot</button>
+        <button id="resetButton">Reset Game</button>
+    </div>
+    <script>
+        let score = 0;
+        let misses = 0;
+        let isShooting = false;
+        const goalkeeper = document.getElementById('goalkeeper');
+        const ball = document.getElementById('ball');
+        const scoreElement = document.getElementById('score');
+        const missesElement = document.getElementById('misses');
+        const shootButton = document.getElementById('shootButton');
+        const resetButton = document.getElementById('resetButton');
+
+        function updateDisplay() {
+            scoreElement.textContent = score;
+            missesElement.textContent = misses;
+        }
+
+        function takeShot() {
+            if (isShooting) return; // Prevent multiple shots at once
+            isShooting = true;
+
+            const ballRect = ball.getBoundingClientRect();
+            const goalkeeperRect = goalkeeper.getBoundingClientRect();
+            const fieldRect = document.querySelector('.field').getBoundingClientRect();
+
+            // Randomize goalkeeper's position
+            const goalkeeperPosition = Math.random() * (fieldRect.width - goalkeeperRect.width);
+            goalkeeper.style.left = `${goalkeeperPosition}px`;
+
+            // Move ball towards the goal
+            let ballLeft = (fieldRect.width - ballRect.width) / 2;
+            let ballBottom = 50;
+
+            const interval = setInterval(() => {
+                if (ballBottom >= 0) {
+                    ballBottom -= 10;
+                    ball.style.bottom = `${ballBottom}px`;
+
+                    // Check for goal
+                    if (ballBottom <= goalkeeperRect.height && ballLeft >= goalkeeperPosition && ballLeft <= goalkeeperPosition + goalkeeperRect.width) {
+                        score++;
+                        clearInterval(interval);
+                        ball.style.bottom = '50px';
+                        isShooting = false;
+                        updateDisplay();
+                    }
+                } else {
+                    misses++;
+                    clearInterval(interval);
+                    ball.style.bottom = '50px';
+                    isShooting = false;
+                    updateDisplay();
+                }
+            }, 50);
+        }
+
+        function resetGame() {
+            score = 0;
+            misses = 0;
+            updateDisplay();
+        }
+
+        shootButton.addEventListener('click', takeShot);
+        resetButton.addEventListener('click', resetGame);
+
+        updateDisplay();
+    </script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Text-Based RPG</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            border: 2px solid #333;
+            padding: 20px;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            margin: 10px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simple Text-Based RPG</h1>
+        <div id="status"></div>
+        <div id="action-buttons">
+            <button class="button" onclick="attack()">Attack</button>
+            <button class="button" onclick="rest()">Rest</button>
+        </div>
+        <div id="result"></div>
+    </div>
+    <script>
+        let playerHealth = 100;
+        let playerAttack = 10;
+        let enemyHealth = 50;
+        let enemyAttack = 5;
+        let gameOver = false;
+
+        function updateStatus() {
+            const status = document.getElementById('status');
+            status.innerHTML = `
+                <h2>Player</h2>
+                <p>Health: ${playerHealth}</p>
+                <p>Attack: ${playerAttack}</p>
+                <h2>Enemy</h2>
+                <p>Health: ${enemyHealth}</p>
+                <p>Attack: ${enemyAttack}</p>
+            `;
+        }
+
+        function attack() {
+            if (gameOver) return;
+            const result = document.getElementById('result');
+            
+            // Player attacks enemy
+            enemyHealth -= playerAttack;
+            if (enemyHealth <= 0) {
+                result.innerHTML = '<p>You defeated the enemy!</p>';
+                gameOver = true;
+                return;
+            }
+
+            // Enemy attacks player
+            playerHealth -= enemyAttack;
+            if (playerHealth <= 0) {
+                result.innerHTML = '<p>You were defeated by the enemy!</p>';
+                gameOver = true;
+                return;
+            }
+
+            result.innerHTML = '<p>You attack the enemy. The enemy attacks back!</p>';
+            updateStatus();
+        }
+
+        function rest() {
+            if (gameOver) return;
+            const result = document.getElementById('result');
+
+            // Player rests
+            playerHealth += 10;
+            if (playerHealth > 100) playerHealth = 100;
+
+            // Enemy attacks player
+            playerHealth -= enemyAttack;
+            if (playerHealth <= 0) {
+                result.innerHTML = '<p>You were defeated by the enemy while resting!</p>';
+                gameOver = true;
+                return;
+            }
+
+            result.innerHTML = '<p>You rest and recover some health. The enemy attacks back!</p>';
+            updateStatus();
+        }
+
+        function resetGame() {
+            playerHealth = 100;
+            playerAttack = 10;
+            enemyHealth = 50;
+            enemyAttack = 5;
+            gameOver = false;
+            document.getElementById('result').innerHTML = '';
+            updateStatus();
+        }
+
+        updateStatus();
+    </script>
+</body>
+</html>
